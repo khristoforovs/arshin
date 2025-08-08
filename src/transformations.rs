@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::fmt::Debug;
 use std::ops::{Add, Div, Mul, Sub};
 
@@ -14,7 +13,6 @@ pub trait MathOpsF64:
     fn log(&self, base: f64) -> Self;
     fn exp(&self, base: f64) -> Self;
     fn pow(&self, power: f64) -> Self;
-    fn as_f64(&self) -> f64;
 }
 
 impl MathOpsF64 for f64 {
@@ -29,22 +27,42 @@ impl MathOpsF64 for f64 {
     fn pow(&self, power: f64) -> Self {
         self.powf(power)
     }
-
-    fn as_f64(&self) -> f64 {
-        *self
-    }
 }
 
-pub trait UnitTransformation<T: MathOpsF64>: Clone + Debug {
-    fn to_base(&self, value: T) -> T;
-    fn from_base(&self, value: T) -> T;
-    fn as_any(&self) -> &dyn Any;
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub enum UnitTransformation {
+    Identity,
+    Linear(LinearTransformation),
+    Decibel(DecibelTransformation),
 }
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub struct LinearTransformation {
     pub scale: f64,  // scale factor
     pub offset: f64, // shift factor (bias)
+}
+
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub struct DecibelTransformation {
+    pub p0: f64, // base value of the relation
+}
+
+impl UnitTransformation {
+    pub fn to_base<T: MathOpsF64>(&self, value: T) -> T {
+        match self {
+            UnitTransformation::Identity => value,
+            UnitTransformation::Linear(trans) => trans.to_base(value),
+            UnitTransformation::Decibel(trans) => trans.to_base(value),
+        }
+    }
+
+    pub fn from_base<T: MathOpsF64>(&self, value: T) -> T {
+        match self {
+            UnitTransformation::Identity => value,
+            UnitTransformation::Linear(trans) => trans.from_base(value),
+            UnitTransformation::Decibel(trans) => trans.from_base(value),
+        }
+    }
 }
 
 impl LinearTransformation {
@@ -59,48 +77,14 @@ impl LinearTransformation {
     pub fn offset(&self) -> f64 {
         self.offset
     }
-}
 
-impl<T: MathOpsF64> UnitTransformation<T> for LinearTransformation {
-    fn to_base(&self, value: T) -> T {
+    fn to_base<T: MathOpsF64>(&self, value: T) -> T {
         (value * self.scale + self.offset) as T
     }
 
-    fn from_base(&self, value: T) -> T {
+    fn from_base<T: MathOpsF64>(&self, value: T) -> T {
         ((value - self.offset) / self.scale) as T
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-}
-
-#[derive(Debug, PartialEq, Copy, Clone)]
-pub struct IdentityTransformation;
-
-impl IdentityTransformation {
-    pub fn new() -> Self {
-        Self {}
-    }
-}
-
-impl<T: MathOpsF64> UnitTransformation<T> for IdentityTransformation {
-    fn from_base(&self, value: T) -> T {
-        value
-    }
-
-    fn to_base(&self, value: T) -> T {
-        value
-    }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-}
-
-#[derive(Debug, PartialEq, Copy, Clone)]
-pub struct DecibelTransformation {
-    pub p0: f64, // base value of the relation
 }
 
 impl DecibelTransformation {
@@ -111,19 +95,13 @@ impl DecibelTransformation {
     pub fn p0(&self) -> f64 {
         self.p0
     }
-}
 
-impl<T: MathOpsF64> UnitTransformation<T> for DecibelTransformation {
-    fn to_base(&self, value: T) -> T {
+    fn to_base<T: MathOpsF64>(&self, value: T) -> T {
         (value / 10.0f64).exp(10.0f64) * self.p0
     }
 
-    fn from_base(&self, value: T) -> T {
+    fn from_base<T: MathOpsF64>(&self, value: T) -> T {
         (value / self.p0).log(10.0) * 10.0f64
-    }
-
-    fn as_any(&self) -> &dyn Any {
-        self
     }
 }
 
@@ -133,13 +111,9 @@ mod transformations_tests {
 
     #[test]
     fn test_identity_transformation() {
-        let trans = IdentityTransformation::new();
+        let trans = UnitTransformation::Identity;
         assert_eq!(trans.to_base(42.0), 42.0);
         assert_eq!(trans.from_base(42.0), 42.0);
-
-        // Verify type through downcasting
-        let any_trans = <IdentityTransformation as UnitTransformation<f64>>::as_any(&trans);
-        assert!(any_trans.is::<IdentityTransformation>());
     }
 
     #[test]
@@ -155,10 +129,6 @@ mod transformations_tests {
         // Test from_base: (value - offset) / scale
         assert_eq!(trans.from_base(3.0), -1.0); // (3 - 5) / 2 = -1
         assert_eq!(trans.from_base(9.0), 2.0); // (9 - 5) / 2 = 2
-
-        // Verify type through downcasting
-        let any_trans = <LinearTransformation as UnitTransformation<f64>>::as_any(&trans);
-        assert!(any_trans.is::<LinearTransformation>());
     }
 
     #[test]
@@ -173,10 +143,6 @@ mod transformations_tests {
         // Test from_base: 10.0 * log10(value / p0)
         assert_eq!(trans.from_base(1.0), 0.0); // log10(1/1) * 10 = 0
         assert_eq!(trans.from_base(10.0), 10.0); // log10(10/1) * 10 = 10
-
-        // Verify type through downcasting
-        let any_trans = <DecibelTransformation as UnitTransformation<f64>>::as_any(&trans);
-        assert!(any_trans.is::<DecibelTransformation>());
     }
 
     #[test]
