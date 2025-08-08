@@ -1,5 +1,5 @@
 use std::fmt;
-use std::ops::{Mul, Div};
+use std::ops::{Div, Mul};
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 enum Fundamentals {
