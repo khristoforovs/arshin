@@ -3,35 +3,44 @@ use crate::transformations::{LinearTransformation, MathOpsF64, UnitTransformatio
 use std::fmt;
 use std::ops::{Div, Mul};
 
-#[derive(Debug, PartialEq, Copy, Clone)]
-pub struct Unit<'a> {
-    pub name: &'a str,
+#[derive(Debug, PartialEq, Clone)]
+pub struct Unit {
+    pub name: String,
     pub dimensionality: Dimension,
     pub transformation: UnitTransformation,
 }
 
-impl<'a> fmt::Display for Unit<'a> {
+impl<'a> fmt::Display for Unit {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} [{}]", self.name, self.dimensionality)
     }
 }
 
-impl<'a> Unit<'a> {
-    pub fn new(name: &'a str, dimension: Dimension, transformation: UnitTransformation) -> Self {
+impl Unit {
+    pub fn new(
+        name: impl Into<String>,
+        dimension: Dimension,
+        transformation: UnitTransformation,
+    ) -> Self {
         Self {
-            name: name,
+            name: name.into(),
             dimensionality: dimension,
             transformation,
         }
     }
 
-    pub fn new_base(name: &'a str, dimension: Dimension) -> Self {
-        Self::new(name, dimension, UnitTransformation::Identity)
+    pub fn new_base(name: impl Into<String>, dimension: Dimension) -> Self {
+        Self::new(name.into(), dimension, UnitTransformation::Identity)
     }
 
-    pub fn new_linear(name: &'a str, dimension: Dimension, scale: f64, offset: f64) -> Self {
+    pub fn new_linear(
+        name: impl Into<String>,
+        dimension: Dimension,
+        scale: f64,
+        offset: f64,
+    ) -> Self {
         Self::new(
-            name,
+            name.into(),
             dimension,
             UnitTransformation::Linear(LinearTransformation::new(scale, offset)),
         )
@@ -62,10 +71,10 @@ impl<'a> Unit<'a> {
     }
 }
 
-impl<'a, 'b> Mul<Unit<'b>> for Unit<'a> {
-    type Output = Unit<'static>;
+impl Mul<Unit> for Unit {
+    type Output = Unit;
 
-    fn mul(self, rhs: Unit<'b>) -> Self::Output {
+    fn mul(self, rhs: Unit) -> Self::Output {
         use UnitTransformation::*;
 
         // Check for biased and non-linear transformations
@@ -115,10 +124,10 @@ impl<'a, 'b> Mul<Unit<'b>> for Unit<'a> {
     }
 }
 
-impl<'a, 'b> Div<Unit<'b>> for Unit<'a> {
-    type Output = Unit<'static>;
+impl Div<Unit> for Unit {
+    type Output = Unit;
 
-    fn div(self, rhs: Unit<'b>) -> Self::Output {
+    fn div(self, rhs: Unit) -> Self::Output {
         use UnitTransformation::*;
 
         // Check for biased and non-linear transformations
@@ -245,7 +254,7 @@ mod tests {
     fn test_units_operations() {
         let kilometer = Unit::new_linear("kilometer", LENGTH, 1000.0, 0.0);
         let minute = Unit::new_linear("minute", TIME, 60.0, 0.0);
-        let kilometer_per_minute = kilometer / minute;
+        let kilometer_per_minute = kilometer.clone() / minute.clone();
         assert_eq!(kilometer_per_minute.to_base(1.0), 1.0e3 / 60.0);
 
         let kilometer_minute = kilometer * minute;
