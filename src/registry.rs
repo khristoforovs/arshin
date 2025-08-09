@@ -1,8 +1,14 @@
 use crate::errors::ArshinError as Error;
 use crate::parser::parse_units_file;
 use crate::units::Unit;
+use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fs;
+
+lazy_static! {
+    pub static ref DEFAULT_REGISTRY: UnitRegistry =
+        UnitRegistry::new_from_file("src/units.txt").unwrap();
+}
 
 pub struct UnitRegistry {
     pub units: HashMap<String, Unit>,
@@ -52,9 +58,18 @@ impl UnitRegistry {
 
 #[macro_export]
 macro_rules! u {
-    ($registry:ident, $unit_name:literal) => {
-        $registry
+    ($registry:ident, $unit_name:expr) => {
+        $registry.get($unit_name).map(|unit| unit.clone()).ok_or(
+            Error::RegistryDoesNotContainUnit {
+                name: $unit_name.into(),
+            },
+        )
+    };
+
+    ($unit_name:expr) => {
+        DEFAULT_REGISTRY
             .get($unit_name)
+            .map(|unit| unit.clone())
             .ok_or(Error::RegistryDoesNotContainUnit {
                 name: $unit_name.into(),
             })

@@ -152,7 +152,7 @@ impl Div<Unit> for Unit {
 
         // Combine names and dimensionalities
         let new_name = format!("({} * {})", self.name, rhs.name);
-        let new_dimension = self.dimensionality * rhs.dimensionality;
+        let new_dimension = self.dimensionality / rhs.dimensionality;
 
         // Combine transformations
         let scale = match self.transformation {
@@ -254,10 +254,15 @@ mod tests {
     fn test_units_operations() {
         let kilometer = Unit::new_linear("kilometer", LENGTH, 1000.0, 0.0);
         let minute = Unit::new_linear("minute", TIME, 60.0, 0.0);
+
         let kilometer_per_minute = kilometer.clone() / minute.clone();
         assert_eq!(kilometer_per_minute.to_base(1.0), 1.0e3 / 60.0);
+        let dim = Dimension::new([0, 1, -1, 0, 0, 0, 0, 0, 0, 0]);
+        assert_eq!(*kilometer_per_minute.dimensionality(), dim);
 
         let kilometer_minute = kilometer * minute;
+        let dim = Dimension::new([0, 1, 1, 0, 0, 0, 0, 0, 0, 0]);
         assert_eq!(kilometer_minute.to_base(1.0), 6.0e4);
+        assert_eq!(*kilometer_minute.dimensionality(), dim);
     }
 }
