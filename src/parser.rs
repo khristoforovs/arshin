@@ -332,7 +332,7 @@ mod tests {
             }
             unit gram { 
                 dimension: mass
-                transformation: identity
+                transformation: linear(scale: 1e-3)
                 prefixes: standard
             }
             unit newton { 
@@ -417,7 +417,7 @@ mod tests {
         let kilogram = registry.get("kilogram").unwrap();
         if let Linear(transformation) = kilogram.transformation() {
             assert_eq!(
-                transformation.scale, 1000.0,
+                transformation.scale, 1.0,
                 "Kilogram scale coefficient incorrect"
             );
             assert_eq!(
@@ -430,7 +430,7 @@ mod tests {
 
         assert_eq!(
             kilogram.to_base(1.0),
-            1.0e3,
+            1.0,
             "Kilogram transformation incorrect"
         );
     }
