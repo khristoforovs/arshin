@@ -1,4 +1,4 @@
-use crate::fundamentals::Dimension;
+use crate::fundamentals::{Dimension, base::COUNT};
 use crate::transformations::{LinearTransformation, MathOpsF64, UnitTransformation};
 use std::fmt;
 use std::ops::{Div, Mul};
@@ -69,6 +69,32 @@ impl Unit {
     pub fn compatible(&self, other: &Unit) -> bool {
         self.dimensionality == other.dimensionality
     }
+
+    pub fn pow(&self, power: i64) -> Self {
+        match self.transformation {
+            UnitTransformation::Decibel(_) => panic!("Cannot raise a decibel unit to a power"),
+            UnitTransformation::Linear(LinearTransformation { scale, offset }) => {
+                if offset != 0.0 {
+                    panic!("Cannot raise a biased unit to a power");
+                }
+
+                if power == 0 {
+                    panic!("Cannot raise a unit to zero power");
+                }
+
+                Self::new_linear(
+                    format!("[{}]^{}", self.name, power),
+                    self.dimensionality().pow(power),
+                    scale.powf(power as f64),
+                    0.0,
+                )
+            }
+            UnitTransformation::Identity => Unit::new_base(
+                format!("[{}]^{}", self.name, power),
+                self.dimensionality().pow(power),
+            ),
+        }
+    }
 }
 
 impl Mul<Unit> for Unit {
@@ -114,7 +140,7 @@ impl Mul<Unit> for Unit {
         };
 
         Unit::new(
-            Box::leak(new_name.into_boxed_str()),
+            new_name,
             new_dimension,
             Linear(LinearTransformation {
                 scale: scale * rhs_scale,
@@ -151,7 +177,7 @@ impl Div<Unit> for Unit {
         }
 
         // Combine names and dimensionalities
-        let new_name = format!("({} * {})", self.name, rhs.name);
+        let new_name = format!("({} / {})", self.name, rhs.name);
         let new_dimension = self.dimensionality / rhs.dimensionality;
 
         // Combine transformations
@@ -167,7 +193,7 @@ impl Div<Unit> for Unit {
         };
 
         Unit::new(
-            Box::leak(new_name.into_boxed_str()),
+            new_name,
             new_dimension,
             Linear(LinearTransformation {
                 scale: scale / rhs_scale,
