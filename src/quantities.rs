@@ -2,7 +2,7 @@ use crate::errors::ArshinError as Error;
 use crate::fundamentals::Dimension;
 use crate::registry::DEFAULT_REGISTRY;
 use crate::registry::UnitRegistry;
-use crate::transformations::MathOpsF64;
+use crate::transformations::{LinearTransformation, MathOpsF64, UnitTransformation};
 use crate::units::Unit;
 use std::ops::{Add, Div, Mul, Sub};
 
@@ -74,11 +74,17 @@ where
     }
 
     pub fn pow(&self, power: i64) -> Self {
-        let new_dimension = self.dimensionality().pow(power);
-        Self::new(
-            self.magnitude.pow(power as f64),
-            Unit::new_base(format!("{}", new_dimension), new_dimension),
-        )
+        match self.unit().transformation() {
+            UnitTransformation::Decibel(_) => panic!("Cannot raise a decibel quantity to a power"),
+            UnitTransformation::Linear(LinearTransformation { scale: _, offset }) => {
+                if *offset != 0.0 {
+                    panic!("Cannot raise a biased quantity to a power");
+                }
+            }
+            _ => {}
+        }
+
+        Self::new(self.magnitude.pow(power as f64), self.unit().pow(power))
     }
 }
 
@@ -280,21 +286,28 @@ mod tests {
     }
 
     #[test]
-    fn test_arithmetic_operations() {
+    fn test_arithmetic_operations() -> Result<(), Error> {
         let meter = Unit::new_base("meter", LENGTH);
         let kilometer = Unit::new_linear("kilometer", LENGTH, 1.0e3, 0.0);
         let quantity1 = Quantity::new(1000.0, meter.clone());
         let quantity2 = Quantity::new(2.0, kilometer.clone());
         assert_eq!(
-            (quantity1.clone() + quantity2.clone())
-                .magnitude_as(&meter)
-                .unwrap(),
+            (quantity1.clone() + quantity2.clone()).magnitude_as(&meter)?,
             3000.0
         );
-        assert_eq!(
-            (quantity1 - quantity2).magnitude_as(&kilometer).unwrap(),
-            -1.0
+        assert_eq!((quantity1 - quantity2).magnitude_as(&kilometer)?, -1.0);
+
+        let centimeter = Unit::new_linear("centimeter", LENGTH, 1.0e-2, 0.0);
+        let cube_meter = meter.pow(3);
+        let cube_centimeter = centimeter.pow(3);
+        assert!(
+            ((Quantity::new(1.0, cube_meter) / Quantity::new(1.0, cube_centimeter)).magnitude
+                - 1.0e6)
+                .abs()
+                < 1.0e-5
         );
+
+        Ok(())
     }
 
     #[test]
@@ -312,17 +325,17 @@ mod tests {
         let second = Unit::new_base("second", TIME);
 
         let joule = Unit::new_base("joule", MASS * LENGTH.pow(2) / TIME.pow(2));
+
         assert_eq!(
             (Quantity::new(1.0e3, gram) * Quantity::new(4.0, meter).pow(2)
                 / Quantity::new(1.0, second).pow(2))
-            .magnitude_as(&joule)
-            .unwrap(),
+            .magnitude_as(&joule)?,
             16.0
         );
+
         assert_eq!(
             (q!(1.0e3, "gram")? * q!(4.0, "meter")?.pow(2) / q!(1.0, "second")?.pow(2))
-                .magnitude_as(&joule)
-                .unwrap(),
+                .magnitude_as(&joule)?,
             16.0
         );
 
