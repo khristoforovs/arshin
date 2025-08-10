@@ -42,11 +42,6 @@ pub struct LinearTransformation {
     pub offset: f64, // shift factor (bias)
 }
 
-#[derive(Debug, PartialEq, Copy, Clone)]
-pub struct DecibelTransformation {
-    pub p0: f64, // base value of the relation
-}
-
 impl UnitTransformation {
     pub fn to_base<T: MathOpsF64>(&self, value: T) -> T {
         match self {
@@ -85,6 +80,12 @@ impl LinearTransformation {
     fn from_base<T: MathOpsF64>(&self, value: T) -> T {
         ((value - self.offset) / self.scale) as T
     }
+}
+
+/// Decibel transformation (10 * log10(value / p0)).
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub struct DecibelTransformation {
+    pub p0: f64, // base value of the relation
 }
 
 impl DecibelTransformation {
