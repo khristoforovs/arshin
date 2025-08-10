@@ -2,7 +2,7 @@ use std::fmt;
 use std::ops::{Div, Mul};
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-enum Fundamentals {
+pub enum Fundamentals {
     Mass,
     Length,
     Time,
