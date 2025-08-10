@@ -6,12 +6,17 @@ use std::collections::HashMap;
 use std::fs;
 
 lazy_static! {
-    pub static ref DEFAULT_REGISTRY: UnitRegistry =
-        UnitRegistry::new_from_file("src/units.txt").unwrap();
+    pub static ref DEFAULT_REGISTRY: UnitRegistry = UnitRegistry::default();
 }
 
 pub struct UnitRegistry {
     pub units: HashMap<String, Unit>,
+}
+
+impl Default for UnitRegistry {
+    fn default() -> Self {
+        Self::new_from_file("src/units.txt").unwrap()
+    }
 }
 
 impl UnitRegistry {
