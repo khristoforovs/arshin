@@ -1,8 +1,12 @@
-use crate::fundamentals::{Dimension, base::COUNT};
+use crate::fundamentals::Dimension;
 use crate::transformations::{LinearTransformation, MathOpsF64, UnitTransformation};
 use std::fmt;
 use std::ops::{Div, Mul};
 
+/// Represents a measurement unit with name, dimension, and transformation.
+///
+/// Units can be base (identity), linear (e.g., km = 1000 * m), or decibel.
+/// Supports multiplication/division for derived units (e.g., m/s).
 #[derive(Debug, PartialEq, Clone)]
 pub struct Unit {
     pub name: String,
@@ -17,6 +21,15 @@ impl<'a> fmt::Display for Unit {
 }
 
 impl Unit {
+    /// Creates a new unit.
+    ///
+    /// # Parameters
+    /// - `name`: Unit name.
+    /// - `dimension`: Dimensionality.
+    /// - `transformation`: Conversion to/from base.
+    ///
+    /// # Returns
+    /// A new `Unit`.
     pub fn new(
         name: impl Into<String>,
         dimension: Dimension,
@@ -29,10 +42,19 @@ impl Unit {
         }
     }
 
+    /// Creates a base unit with identity transformation.
+    ///
+    /// # Examples
+    /// Meter: `Unit::new_base("meter", LENGTH)`.
     pub fn new_base(name: impl Into<String>, dimension: Dimension) -> Self {
         Self::new(name.into(), dimension, UnitTransformation::Identity)
     }
 
+    /// Creates a unit with linear transformation (e.g., km or Celsius).
+    ///
+    /// # Parameters
+    /// - `scale`: Scaling factor.
+    /// - `offset`: Offset for biased units (e.g., temperature).
     pub fn new_linear(
         name: impl Into<String>,
         dimension: Dimension,
@@ -46,10 +68,12 @@ impl Unit {
         )
     }
 
+    /// Converts a value in this unit to base units.
     pub fn to_base<T: MathOpsF64>(&self, value: T) -> T {
         self.transformation.to_base(value)
     }
 
+    /// Converts a value from base units to this unit.
     pub fn from_base<T: MathOpsF64>(&self, value: T) -> T {
         self.transformation.from_base(value)
     }
@@ -66,6 +90,10 @@ impl Unit {
         &self.transformation
     }
 
+    /// Checks if two units have the same dimensionality (compatible for conversion).
+    ///
+    /// # Returns
+    /// `true` if compatible.
     pub fn compatible(&self, other: &Unit) -> bool {
         self.dimensionality == other.dimensionality
     }

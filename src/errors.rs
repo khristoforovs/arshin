@@ -1,6 +1,9 @@
 use crate::fundamentals::Dimension;
 use thiserror::Error;
 
+/// Errors for the Arshin library.
+///
+/// Covers parsing, registry, conversion, and OS issues.
 #[derive(Error, Debug, PartialEq)]
 pub enum ArshinError {
     #[error(

@@ -69,6 +69,19 @@ const SI_PREFIXES: [(&str, &str, f64); 24] = [
     ("quecto", "q", 1e-30),
 ];
 
+/// Parses a units file into a registry.
+///
+/// Uses Pest grammar for definitions like: unit meter { dimension: length, transformation: identity, prefixes: standard }.
+///
+/// # Parameters
+/// - `file_content`: String content of the file.
+///
+/// # Returns
+/// `Ok(UnitRegistry)` or parse error.
+///
+/// # Errors
+/// - Invalid syntax.
+/// - Incompatible prefixes (e.g., with offsets/decibels).
 pub fn parse_units_file(file_content: &str) -> Result<UnitRegistry, Error> {
     let mut registry = UnitRegistry::new();
     let pairs =

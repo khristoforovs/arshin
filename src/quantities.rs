@@ -6,6 +6,9 @@ use crate::transformations::{LinearTransformation, MathOpsF64, UnitTransformatio
 use crate::units::Unit;
 use std::ops::{Add, Div, Mul, Sub};
 
+/// Represents a physical quantity: magnitude in base units + unit.
+///
+/// Stores magnitude in base for easy ops; converts on demand.
 #[derive(Debug, Clone)]
 pub struct Quantity<T>
 where
@@ -19,6 +22,7 @@ impl<T> Quantity<T>
 where
     T: MathOpsF64 + 'static,
 {
+    /// Creates a quantity from magnitude and unit (converts to base internally).
     pub fn new(magnitude: T, unit: Unit) -> Self {
         let base_magnitude = unit.to_base(magnitude);
         Self {
@@ -27,6 +31,10 @@ where
         }
     }
 
+    /// Creates from registry by unit name.
+    ///
+    /// # Errors
+    /// If unit not found.
     pub fn new_from_registry(
         registry: &UnitRegistry,
         magnitude: T,
@@ -45,6 +53,10 @@ where
         })
     }
 
+    /// Gets magnitude in a target unit.
+    ///
+    /// # Errors
+    /// If dimensions incompatible.
     pub fn magnitude_as(&self, unit: &Unit) -> Result<T, Error> {
         if self.dimensionality() != unit.dimensionality() {
             Err(Error::UnitsConversionError {
@@ -56,7 +68,7 @@ where
         }
     }
 
-    /// Shorter version of .magnitude_as() method
+    /// Shorthand for `magnitude_as`.
     pub fn m_as(&self, unit: &Unit) -> Result<T, Error> {
         self.magnitude_as(unit)
     }
@@ -73,6 +85,7 @@ where
         self.magnitude
     }
 
+    /// Raises the quantity to a power (updates dimension and magnitude).
     pub fn pow(&self, power: i64) -> Self {
         match self.unit().transformation() {
             UnitTransformation::Decibel(_) => panic!("Cannot raise a decibel quantity to a power"),
@@ -196,6 +209,7 @@ where
     }
 }
 
+/// Macro to create a quantity from value and unit name (using custom or default registry).
 #[macro_export]
 macro_rules! q {
     ($registry:ident, $value:expr, $unit_name:expr) => {

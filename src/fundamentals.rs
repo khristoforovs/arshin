@@ -80,10 +80,31 @@ impl Fundamentals {
 pub const FUNDAMENTALS_NUMBER: usize = 10;
 pub type FundamentalsPowersType = i32;
 
+/// Represents a combination of fundamental physical dimensions (represented in Fundamentals enum).
+///
+/// Dimensions are used to ensure unit compatibility. They can be multiplied, divided, or raised to powers.
+/// Dimensionless quantities collapse to "count".
+///
+/// # Examples
+///
+/// ```
+/// use arshin::fundamentals::{Dimension, base::{LENGTH, MASS, TIME}};
+/// let force_dim = MASS * LENGTH / TIME.pow(2);
+/// assert_eq!(force_dim.to_string(), "mass * length * [time]^-2");
+/// ```
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Dimension([FundamentalsPowersType; FUNDAMENTALS_NUMBER]);
 
 impl Dimension {
+    /// Creates a new dimension from an array of exponents for each fundamental.
+    ///
+    /// If all exponents except the last are zero, it collapses to a "count" dimension.
+    ///
+    /// # Parameters
+    /// - `powers`: Array of exponents for [mass, length, time, current, temperature, amount_of_substance, luminous_intensity, angle, bit, count].
+    ///
+    /// # Returns
+    /// A new `Dimension`.
     pub fn new(powers: [FundamentalsPowersType; FUNDAMENTALS_NUMBER]) -> Dimension {
         let mut result = [0; FUNDAMENTALS_NUMBER];
         if powers[..FUNDAMENTALS_NUMBER - 1] == [0; FUNDAMENTALS_NUMBER - 1] {
@@ -103,6 +124,10 @@ impl Dimension {
         Dimension(powers)
     }
 
+    /// Multiplies two dimensions by adding their exponents.
+    ///
+    /// # Returns
+    /// The product dimension.
     pub fn mul(self, rhs: Dimension) -> Dimension {
         let mut powers = self.0;
         powers.iter_mut().zip(rhs.0.iter()).for_each(|(x, y)| {
@@ -111,6 +136,10 @@ impl Dimension {
         Dimension::new(powers)
     }
 
+    /// Divides two dimensions by subtracting their exponents.
+    ///
+    /// # Returns
+    /// The quotient dimension.
     pub fn div(self, rhs: Dimension) -> Dimension {
         let mut powers = self.0;
         powers.iter_mut().zip(rhs.0.iter()).for_each(|(x, y)| {
@@ -119,6 +148,13 @@ impl Dimension {
         Dimension::new(powers)
     }
 
+    /// Raises the dimension to a power by multiplying exponents.
+    ///
+    /// # Parameters
+    /// - `power`: The exponent (can be negative).
+    ///
+    /// # Returns
+    /// The powered dimension.
     pub fn pow(self, power: i64) -> Dimension {
         let mut powers = self.0;
         powers.iter_mut().for_each(|x| {
@@ -163,6 +199,7 @@ impl Div<Dimension> for Dimension {
     }
 }
 
+/// Fundamental base dimensions as constants.
 pub mod base {
     use super::*;
     use Fundamentals::*;

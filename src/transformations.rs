@@ -1,6 +1,7 @@
 use std::fmt::Debug;
 use std::ops::{Add, Div, Mul, Sub};
 
+/// Trait for mathematical operations on f64-like types, used in transformations.
 pub trait MathOpsF64:
     Add<f64, Output = Self>
     + Sub<f64, Output = Self>
@@ -29,6 +30,7 @@ impl MathOpsF64 for f64 {
     }
 }
 
+/// Enum for unit conversion transformations.
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum UnitTransformation {
     Identity,
@@ -43,6 +45,13 @@ pub struct LinearTransformation {
 }
 
 impl UnitTransformation {
+    /// Converts a value to the base unit using the transformation.
+    ///
+    /// # Parameters
+    /// - `value`: The value to convert.
+    ///
+    /// # Returns
+    /// The value in base units.
     pub fn to_base<T: MathOpsF64>(&self, value: T) -> T {
         match self {
             UnitTransformation::Identity => value,
@@ -51,6 +60,13 @@ impl UnitTransformation {
         }
     }
 
+    /// Converts a value from the base unit using the inverse transformation.
+    ///
+    /// # Parameters
+    /// - `value`: The base value to convert.
+    ///
+    /// # Returns
+    /// The value in the target unit.
     pub fn from_base<T: MathOpsF64>(&self, value: T) -> T {
         match self {
             UnitTransformation::Identity => value,
@@ -60,7 +76,16 @@ impl UnitTransformation {
     }
 }
 
+/// Linear transformation (scale * value + offset).
 impl LinearTransformation {
+    /// Creates a new linear transformation.
+    ///
+    /// # Parameters
+    /// - `scale`: Scaling factor.
+    /// - `offset`: Offset (bias).
+    ///
+    /// # Examples
+    /// Celsius to Kelvin: scale=1.0, offset=273.15.
     pub fn new(scale: f64, offset: f64) -> Self {
         Self { scale, offset }
     }
@@ -73,10 +98,12 @@ impl LinearTransformation {
         self.offset
     }
 
+    /// Converts to base: value * scale + offset.
     fn to_base<T: MathOpsF64>(&self, value: T) -> T {
         (value * self.scale + self.offset) as T
     }
 
+    /// Converts from base: (value - offset) / scale.
     fn from_base<T: MathOpsF64>(&self, value: T) -> T {
         ((value - self.offset) / self.scale) as T
     }
@@ -89,6 +116,10 @@ pub struct DecibelTransformation {
 }
 
 impl DecibelTransformation {
+    /// Creates a new decibel transformation.
+    ///
+    /// # Parameters
+    /// - `p0`: Reference value (e.g., 1.0 for relative dB).
     pub fn new(p0: f64) -> Self {
         Self { p0 }
     }
@@ -97,10 +128,12 @@ impl DecibelTransformation {
         self.p0
     }
 
+    /// Converts dB to linear: 10^(value / 10) * p0.
     fn to_base<T: MathOpsF64>(&self, value: T) -> T {
         (value / 10.0f64).exp(10.0f64) * self.p0
     }
 
+    /// Converts linear to dB: 10 * log10(value / p0).
     fn from_base<T: MathOpsF64>(&self, value: T) -> T {
         (value / self.p0).log(10.0) * 10.0f64
     }
