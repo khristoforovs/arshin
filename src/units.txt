@@ -25,7 +25,7 @@ unit ampere {
 }
 
 unit degree_kelvin { 
-    dimension: mass
+    dimension: temperature
     transformation: identity
     prefixes: no
 }
@@ -77,6 +77,46 @@ unit permille {
 unit ppm { 
     dimension: count
     transformation: linear(scale: 1.0e-6)
+    prefixes: no
+}
+
+unit decibel {
+    dimension: count
+    transformation: decibel(p0: 1)
+    prefixes: no
+}
+
+// ANGLE 
+
+unit degree { 
+    dimension: angle
+    transformation: linear(scale: 0.01745329251)
+    prefixes: no
+}
+
+unit arcminute { 
+    dimension: angle
+    transformation: linear(scale: 0.0002908882)
+    prefixes: no
+}
+
+unit arcsecond { 
+    dimension: angle
+    transformation: linear(scale: 0.00000484813)
+    prefixes: no
+}
+
+// SOLID ANGLE
+
+unit steradian { 
+    dimension: angle^2
+    transformation: identity
+    prefixes: no
+}
+
+unit square_degree { 
+    dimension: angle^2
+    transformation: linear(scale: 0.00030461741)
     prefixes: no
 }
 
@@ -268,12 +308,6 @@ unit liter {
     prefixes: no
 }
 
-unit cubic_centimeter {
-    dimension: length^3
-    transformation: linear(scale: 1.0e-6)
-    prefixes: no
-}
-
 // FREQUENCY
 
 unit hertz {
@@ -292,7 +326,7 @@ unit meter_per_second {
 
 unit kilometer_per_second {
     dimension: length / time
-    transformation: linear(scale: 1e3)
+    transformation: linear(scale: 1.0e3)
     prefixes: no
 }
 
@@ -316,18 +350,262 @@ unit meter_per_second_squared {
     prefixes: no
 }
 
-
-
-
-
-unit decibel {
-    dimension: count
-    transformation: decibel(p0: 1)
-    prefixes: no
-}
+// FORCE
 
 unit newton { 
     dimension: mass * length / time^2
-    transformation: linear(scale: 1.0, offset: 0.0)
+    transformation: identity
     prefixes: standard
+}
+
+unit dyne { 
+    dimension: mass * length / time^2
+    transformation: linear(scale: 1.0e-5)
+    prefixes: no
+}
+
+unit force_kilogram { 
+    dimension: mass * length / time^2
+    transformation: linear(scale: 9.81)
+    prefixes: no
+}
+
+unit force_gram { 
+    dimension: mass * length / time^2
+    transformation: linear(scale: 9.81e-3)
+    prefixes: no
+}
+
+unit force_metric_ton { 
+    dimension: mass * length / time^2
+    transformation: linear(scale: 9.81e3)
+    prefixes: no
+}
+
+// ENERGY
+
+unit joule { 
+    dimension: mass * length^2 / time^2
+    transformation: identity
+    prefixes: standard
+}
+
+unit erg { 
+    dimension: mass * length^2 / time^2
+    transformation: linear(scale: 1.0e-7)
+    prefixes: no
+}
+
+unit calorie { 
+    dimension: mass * length^2 / time^2
+    transformation: linear(scale: 4.184)
+    prefixes: standard
+}
+
+// POWER
+
+unit watt { 
+    dimension: mass * length^2 / time^3
+    transformation: identity
+    prefixes: standard
+}
+
+unit horse_power { 
+    dimension: mass * length^2 / time^3
+    transformation: linear(scale: 745.953997853)
+    prefixes: no
+}
+
+unit metric_horse_power { 
+    dimension: mass * length^2 / time^3
+    transformation: linear(scale: 735.75)
+    prefixes: no
+}
+
+// PRESSURE
+
+unit pascal { 
+    dimension: mass / length / time^2
+    transformation: identity
+    prefixes: standard
+}
+
+unit bar { 
+    dimension: mass / length / time^2
+    transformation: linear(scale: 1e5)
+    prefixes: no
+}
+
+unit technical_atmosphere { 
+    dimension: mass / length / time^2
+    transformation: linear(scale: 9.81e4)
+    prefixes: no
+}
+
+unit sound_pressure_level { 
+    dimension: mass / length / time^2
+    transformation: linear(scale: 20e-6)
+    prefixes: no
+}
+
+unit pound_force_per_square_inch { 
+    dimension: mass / length / time^2
+    transformation: linear(scale: 6894.75478951)
+    prefixes: no
+}
+
+// VISCOSITY
+
+unit poise { 
+    dimension: mass / length / time
+    transformation: linear(scale: 0.1)
+    prefixes: no
+}
+
+unit reyn { 
+    dimension: mass / length / time
+    transformation: linear(scale: 6894.75478951)
+    prefixes: no
+}
+
+// LUMINANCE
+
+unit nit { 
+    dimension: luminosity / length^2
+    transformation: identity
+    prefixes: standard
+}
+
+// LUMINOUS FLUX
+
+unit lumen { 
+    dimension: luminosity * angle^2
+    transformation: identity
+    prefixes: standard
+}
+
+// CURRENT
+
+unit biot { 
+    dimension: current
+    transformation: linear(scale: 10.0)
+    prefixes: no
+}
+
+unit abampere { 
+    dimension: current
+    transformation: linear(scale: 10.0)
+    prefixes: no
+}
+
+// ELECTRIC CHARGE
+
+unit coulomb { 
+    dimension: current * time
+    transformation: identity
+    prefixes: standard
+}
+
+unit abcoulomb { 
+    dimension: current * time
+    transformation: linear(scale: 10.0)
+    prefixes: no
+}
+
+unit ampere_hour { 
+    dimension: current * time
+    transformation: linear(scale: 3600.0)
+    prefixes: no
+}
+
+// ELECTRIC POTENTIAL
+
+unit volt { 
+    dimension: mass * length^2 / time^3 / current
+    transformation: identity
+    prefixes: standard
+}
+
+unit abvolt { 
+    dimension: mass * length^2 / time^3 / current
+    transformation: linear(scale: 1.0e-8)
+    prefixes: no
+}
+
+// ELECTRIC RESISTANCE
+
+unit ohm { 
+    dimension: mass * length^2 / time^3 / current^2
+    transformation: identity
+    prefixes: standard
+}
+
+unit abohm { 
+    dimension: mass * length^2 / time^3 / current^2
+    transformation: linear(scale: 1.0e-9)
+    prefixes: no
+}
+
+// ELECTRIC CONDUCTIVITY
+
+unit siemens { 
+    dimension: time^3 * current^2 / mass / length^2
+    transformation: identity
+    prefixes: standard
+}
+
+unit absiemens { 
+    dimension: time^3 * current^2 / mass / length^2
+    transformation: linear(scale: 1.0e9)
+    prefixes: no
+}
+
+// CAPACITANCE
+
+unit farad {
+    dimension: current^2 * time^4 / mass / length^2
+    transformation: identity
+    prefixes: standard
+}
+
+unit abfarad {
+    dimension: current^2 * time^4 / mass / length^2
+    transformation: linear(scale: 1.0e9)
+    prefixes: no
+}
+
+// MAGNETIC FLUX
+
+unit weber { 
+    dimension: mass * length^2 / time^2 / current
+    transformation: identity
+    prefixes: standard
+}
+
+// INDUCTANCE
+
+unit henry { 
+    dimension: mass * length^2 / time^2 / current^2
+    transformation: identity
+    prefixes: standard
+}
+
+unit abhenry { 
+    dimension: mass * length^2 / time^2 / current^2
+    transformation: linear(scale: 1.0e-9)
+    prefixes: no
+}
+
+// MAGNETIC FIELD
+
+unit tesla { 
+    dimension: mass / time^2 / current
+    transformation: identity
+    prefixes: standard
+}
+
+unit gamma { 
+    dimension: mass / time^2 / current
+    transformation: linear(scale: 1.0e-9)
+    prefixes: no
 }
