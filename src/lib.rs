@@ -11,7 +11,6 @@ pub use transformations::{
     MathOpsF64,
     UnitTransformation,
     LinearTransformation,
-    IdentityTransformation,
     DecibelTransformation,
 };
 pub use fundamentals::{
