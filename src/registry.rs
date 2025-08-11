@@ -1,4 +1,5 @@
 use crate::errors::ArshinError as Error;
+use crate::fundamentals::Dimension;
 use crate::parser::parse_units_file;
 use crate::units::Unit;
 use lazy_static::lazy_static;
@@ -58,6 +59,13 @@ impl UnitRegistry {
         self.units.keys().map(|s| s.clone())
     }
 
+    pub fn unit_names_with_dimensionality(&self, dim: Dimension) -> impl Iterator<Item = String> {
+        self.units
+            .iter()
+            .filter(move |(_, unit)| *unit.dimensionality() == dim)
+            .map(|(s, _)| s.clone())
+    }
+
     /// Registers a unit.
     ///
     /// # Errors
@@ -108,9 +116,9 @@ macro_rules! u {
 
 #[cfg(test)]
 mod tests {
-    use crate::fundamentals::base::{LENGTH, TEMPERATURE};
-
     use super::*;
+    use crate::fundamentals::base::{LENGTH, TEMPERATURE};
+    use std::collections::HashSet;
 
     #[test]
     fn test_registry_create() {
@@ -121,6 +129,8 @@ mod tests {
     #[test]
     fn test_registry_create_from_file() {
         let registry = UnitRegistry::new_from_file("src/units.txt").unwrap();
+
+        assert!(registry.contains("millimeter"));
         assert!(registry.get("meter").is_some());
         assert!(registry.get("kilometer").is_some());
         assert!(registry.get("degree_celsius").is_some());
@@ -164,5 +174,17 @@ mod tests {
         assert!(registry.get("degree_celsius").is_some());
         assert!(registry.get("decibel").is_some());
         assert!(registry.get("newton").is_some());
+    }
+
+    #[test]
+    fn test_list_with_dimensionality() {
+        let registry = UnitRegistry::new_from_file("src/units.txt").unwrap();
+        let length_names = registry
+            .unit_names_with_dimensionality(LENGTH)
+            .collect::<HashSet<_>>();
+
+        assert!(length_names.contains("meter"));
+        assert!(length_names.contains("kilometer"));
+        assert!(!length_names.contains("degree_celsius"));
     }
 }
