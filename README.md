@@ -1,7 +1,5 @@
 # Arshin: A Rust Library for Units and Quantities
 
-[![Crates.io](https://img.shields.io/crates/v/arshin.svg)](https://crates.io/crates/arshin) <!-- Assuming it's published; remove if not -->
-[![Docs.rs](https://docs.rs/arshin/badge.svg)](https://docs.rs/arshin) <!-- Assuming docs are generated -->
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Arshin is a lightweight, type-safe Rust library for managing physical units, dimensions, and quantities. Inspired by libraries like Pint (Python) and Boost.Units (C++), it provides dimensional analysis to prevent unit mismatches, supports conversions (including linear offsets like Celsius-Kelvin and decibel scales), and allows arithmetic operations on quantities. Units can be defined programmatically or parsed from a custom file format, with support for SI prefixes.
