@@ -59,7 +59,7 @@ Build requirements: Rust 1.60+ (uses `lazy_static`, `pest`, `thiserror`).
 ```rust
 use arshin::{q, u};  // Macros for quantity and unit
 
-fn main() -> Result<(), arshin::errors::ArshinError> {
+fn main() -> Result<(), arshin::ArshinError> {
     // Create quantity: 5 kilometers
     let distance = q!(5.0, "kilometer")?;
 
@@ -76,9 +76,9 @@ fn main() -> Result<(), arshin::errors::ArshinError> {
 ```rust
 use arshin::{q, u};
 
-fn main() -> Result<(), arshin::errors::ArshinError> {
+fn main() -> Result<(), arshin::ArshinError> {
     let mass = q!(2.0, "kilogram")?;
-    let accel = q!(9.81, "meter / second^2")?;
+    let accel = q!(9.81, "meter_per_second_squared")?;
     let force = mass * accel;
 
     let newton = u!("newton")?;
@@ -93,12 +93,11 @@ fn main() -> Result<(), arshin::errors::ArshinError> {
 ```rust
 use arshin::q;
 
-fn main() -> Result<(), arshin::errors::ArshinError> {
+fn main() -> Result<(), arshin::ArshinError> {
     let temp_c = q!(25.0, "degree_celsius")?;
-    let kelvin = q!(298.15, "kelvin")?;
+    let kelvin = q!(298.15, "degree_kelvin")?;
     assert_eq!(temp_c.m_as(&kelvin.unit())?, 298.15);
 
-    // Note: Cannot multiply biased units (panics)
     Ok(())
 }
 ```
@@ -106,10 +105,10 @@ fn main() -> Result<(), arshin::errors::ArshinError> {
 5. **Derived Units**:
 
 ```rust
-use arshin::{Unit, fundamentals::base::{LENGTH, TIME}};
+use arshin::{Unit, base::{LENGTH, TIME}};
 
-let meter = Unit::new_base("meter", LENGTH);
-let second = Unit::new_base("second", TIME);
+let meter = u!("meter")?;
+let second = u!("second")?;
 let speed_unit = meter / second;  // Name: "(meter / second)", dim: length / time
 ```
 
@@ -150,20 +149,22 @@ unit decibel {
 Load it:
 
 ```rust
-use arshin::registry::UnitRegistry;
+use arshin::UnitRegistry;
 
 let registry = UnitRegistry::new_from_file("custom_units.txt")?;
-let meter = registry.get("meter").unwrap();
+let meter = registry.get("meter")?;
 ```
 
 #### Manual Unit Registration
 
 ```rust
-use arshin::{UnitRegistry, Unit, fundamentals::base::LENGTH};
+use arshin::{UnitRegistry, Unit, base::LENGTH};
 
 let mut registry = UnitRegistry::new();
-let kilometer = Unit::new_linear("kilometer", LENGTH, 1000.0, 0.0);
-registry.register(kilometer)?;
+let meter = Unit::new_base("meter", LENGTH);
+let parrot = Unit::new_linear("parrot", LENGTH, 0.3, 0.0);
+registry.register(meter)?;
+registry.register(parrot)?;
 ```
 
 #### Powering Quantities
