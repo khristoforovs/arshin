@@ -1,15 +1,15 @@
 use std::fmt;
-use std::ops::{Mul, Div};
+use std::ops::{Div, Mul};
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-enum Fundamentals {
+pub enum Fundamentals {
     Mass,
     Length,
     Time,
     Current,
     Temperature,
     AmountOfSubstance,
-    LuminousIntensity,
+    Luminosity,
     Angle,
     Bit,
     Count,
@@ -27,7 +27,7 @@ impl fmt::Display for Fundamentals {
                 Fundamentals::Current => "current",
                 Fundamentals::Temperature => "temperature",
                 Fundamentals::AmountOfSubstance => "amount of substance",
-                Fundamentals::LuminousIntensity => "luminous intensity",
+                Fundamentals::Luminosity => "luminosity",
                 Fundamentals::Angle => "angle",
                 Fundamentals::Bit => "bit",
                 Fundamentals::Count => "count",
@@ -50,7 +50,7 @@ impl Fundamentals {
             3 => Ok(Fundamentals::Current),
             4 => Ok(Fundamentals::Temperature),
             5 => Ok(Fundamentals::AmountOfSubstance),
-            6 => Ok(Fundamentals::LuminousIntensity),
+            6 => Ok(Fundamentals::Luminosity),
             7 => Ok(Fundamentals::Angle),
             8 => Ok(Fundamentals::Bit),
             9 => Ok(Fundamentals::Count),
@@ -67,7 +67,7 @@ impl Fundamentals {
             Current,
             Temperature,
             AmountOfSubstance,
-            LuminousIntensity,
+            Luminosity,
             Angle,
             Bit,
             Count,
@@ -80,10 +80,31 @@ impl Fundamentals {
 pub const FUNDAMENTALS_NUMBER: usize = 10;
 pub type FundamentalsPowersType = i32;
 
+/// Represents a combination of fundamental physical dimensions (represented in Fundamentals enum).
+///
+/// Dimensions are used to ensure unit compatibility. They can be multiplied, divided, or raised to powers.
+/// Dimensionless quantities collapse to "count".
+///
+/// # Examples
+///
+/// ```
+/// use arshin::fundamentals::{Dimension, base::{LENGTH, MASS, TIME}};
+/// let force_dim = MASS * LENGTH / TIME.pow(2);
+/// assert_eq!(force_dim.to_string(), "mass * length * [time]^-2");
+/// ```
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Dimension([FundamentalsPowersType; FUNDAMENTALS_NUMBER]);
 
 impl Dimension {
+    /// Creates a new dimension from an array of exponents for each fundamental.
+    ///
+    /// If all exponents except the last are zero, it collapses to a "count" dimension.
+    ///
+    /// # Parameters
+    /// - `powers`: Array of exponents for [mass, length, time, current, temperature, amount_of_substance, luminous_intensity, angle, bit, count].
+    ///
+    /// # Returns
+    /// A new `Dimension`.
     pub fn new(powers: [FundamentalsPowersType; FUNDAMENTALS_NUMBER]) -> Dimension {
         let mut result = [0; FUNDAMENTALS_NUMBER];
         if powers[..FUNDAMENTALS_NUMBER - 1] == [0; FUNDAMENTALS_NUMBER - 1] {
@@ -103,6 +124,10 @@ impl Dimension {
         Dimension(powers)
     }
 
+    /// Multiplies two dimensions by adding their exponents.
+    ///
+    /// # Returns
+    /// The product dimension.
     pub fn mul(self, rhs: Dimension) -> Dimension {
         let mut powers = self.0;
         powers.iter_mut().zip(rhs.0.iter()).for_each(|(x, y)| {
@@ -111,6 +136,10 @@ impl Dimension {
         Dimension::new(powers)
     }
 
+    /// Divides two dimensions by subtracting their exponents.
+    ///
+    /// # Returns
+    /// The quotient dimension.
     pub fn div(self, rhs: Dimension) -> Dimension {
         let mut powers = self.0;
         powers.iter_mut().zip(rhs.0.iter()).for_each(|(x, y)| {
@@ -119,6 +148,13 @@ impl Dimension {
         Dimension::new(powers)
     }
 
+    /// Raises the dimension to a power by multiplying exponents.
+    ///
+    /// # Parameters
+    /// - `power`: The exponent (can be negative).
+    ///
+    /// # Returns
+    /// The powered dimension.
     pub fn pow(self, power: i64) -> Dimension {
         let mut powers = self.0;
         powers.iter_mut().for_each(|x| {
@@ -163,6 +199,7 @@ impl Div<Dimension> for Dimension {
     }
 }
 
+/// Fundamental base dimensions as constants.
 pub mod base {
     use super::*;
     use Fundamentals::*;
@@ -173,7 +210,7 @@ pub mod base {
     pub const CURRENT: Dimension = Dimension::new_from_fundamental(Current);
     pub const TEMPERATURE: Dimension = Dimension::new_from_fundamental(Temperature);
     pub const AMOUNT_OF_SUBSTANCE: Dimension = Dimension::new_from_fundamental(AmountOfSubstance);
-    pub const LUMINOUS_INTENSITY: Dimension = Dimension::new_from_fundamental(LuminousIntensity);
+    pub const LUMINOSITY: Dimension = Dimension::new_from_fundamental(Luminosity);
     pub const ANGLE: Dimension = Dimension::new_from_fundamental(Angle);
     pub const BIT: Dimension = Dimension::new_from_fundamental(Bit);
     pub const COUNT: Dimension = Dimension::new_from_fundamental(Count);
@@ -237,10 +274,7 @@ mod tests {
             Fundamentals::AmountOfSubstance.to_string(),
             "amount of substance"
         );
-        assert_eq!(
-            Fundamentals::LuminousIntensity.to_string(),
-            "luminous intensity"
-        );
+        assert_eq!(Fundamentals::Luminosity.to_string(), "luminosity");
         assert_eq!(Fundamentals::Angle.to_string(), "angle");
         assert_eq!(Fundamentals::Bit.to_string(), "bit");
         assert_eq!(Fundamentals::Count.to_string(), "count");
@@ -254,7 +288,7 @@ mod tests {
         assert_eq!(Fundamentals::Current.to_index(), 3);
         assert_eq!(Fundamentals::Temperature.to_index(), 4);
         assert_eq!(Fundamentals::AmountOfSubstance.to_index(), 5);
-        assert_eq!(Fundamentals::LuminousIntensity.to_index(), 6);
+        assert_eq!(Fundamentals::Luminosity.to_index(), 6);
         assert_eq!(Fundamentals::Angle.to_index(), 7);
         assert_eq!(Fundamentals::Bit.to_index(), 8);
         assert_eq!(Fundamentals::Count.to_index(), 9);
@@ -273,7 +307,7 @@ mod tests {
         );
         assert_eq!(
             Fundamentals::from_index(6),
-            Ok(Fundamentals::LuminousIntensity)
+            Ok(Fundamentals::Luminosity)
         );
         assert_eq!(Fundamentals::from_index(7), Ok(Fundamentals::Angle));
         assert_eq!(Fundamentals::from_index(8), Ok(Fundamentals::Bit));
