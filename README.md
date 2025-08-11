@@ -36,10 +36,10 @@ Add Arshin to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-arshin = "0.1.0"  # Replace with the actual version
+arshin = { git = "https://github.com/khristoforovs/arshin.git" }
 ```
 
-If not published on crates.io, clone the repository and add as a path dependency:
+Another way is to clone the repository and add as a path dependency:
 
 ```toml
 [dependencies]
