@@ -15,7 +15,7 @@ Arshin is suitable for scientific computing, engineering simulations, or any app
 
 ## Features
 
-- **Fundamental Dimensions**: 10 base dimensions (mass, length, time, current, temperature, amount of substance, luminous intensity, angle, bit, count).
+- **Fundamental Dimensions**: 10 base dimensions (mass, length, time, current, temperature, amount of substance, luminosity, angle, bit, count).
 - **Units**: Base units (e.g., meter), scaled (e.g., kilometer), biased (e.g., Celsius), and decibel-based.
 - **Transformations**: Identity, linear (scale + offset), decibel (logarithmic).
 - **Quantities**: Values with units; support add/sub/mul/div, scalar ops, powering.

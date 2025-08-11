@@ -7,7 +7,7 @@ dimension_expression = { dimension_term ~ ( operator ~ dimension_term )* }
 dimension_term = { fundamental ~ ("^" ~ exponent)? }
 exponent = @{ ("-"? ~ ASCII_DIGIT+) }
 fundamental = @{ "length" | "mass" | "time" | "current" | "temperature" |
-    "amount of substance" | "luminous intensity" | "angle" | "bit" | "count" }
+    "amount of substance" | "luminosity" | "angle" | "bit" | "count" }
 operator = @{ "*" | "/" }
 
 transformation_property = { "transformation:" ~ transformation }

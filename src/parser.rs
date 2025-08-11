@@ -109,7 +109,7 @@ pub fn parse_units_file(file_content: &str) -> Result<UnitRegistry, Error> {
                 "current" => CURRENT,
                 "temperature" => TEMPERATURE,
                 "amount of substance" => AMOUNT_OF_SUBSTANCE,
-                "luminous intensity" => LUMINOUS_INTENSITY,
+                "luminosity" => LUMINOSITY,
                 "angle" => ANGLE,
                 "bit" => BIT,
                 "count" => COUNT,

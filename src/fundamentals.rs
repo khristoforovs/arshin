@@ -9,7 +9,7 @@ pub enum Fundamentals {
     Current,
     Temperature,
     AmountOfSubstance,
-    LuminousIntensity,
+    Luminosity,
     Angle,
     Bit,
     Count,
@@ -27,7 +27,7 @@ impl fmt::Display for Fundamentals {
                 Fundamentals::Current => "current",
                 Fundamentals::Temperature => "temperature",
                 Fundamentals::AmountOfSubstance => "amount of substance",
-                Fundamentals::LuminousIntensity => "luminous intensity",
+                Fundamentals::Luminosity => "luminosity",
                 Fundamentals::Angle => "angle",
                 Fundamentals::Bit => "bit",
                 Fundamentals::Count => "count",
@@ -50,7 +50,7 @@ impl Fundamentals {
             3 => Ok(Fundamentals::Current),
             4 => Ok(Fundamentals::Temperature),
             5 => Ok(Fundamentals::AmountOfSubstance),
-            6 => Ok(Fundamentals::LuminousIntensity),
+            6 => Ok(Fundamentals::Luminosity),
             7 => Ok(Fundamentals::Angle),
             8 => Ok(Fundamentals::Bit),
             9 => Ok(Fundamentals::Count),
@@ -67,7 +67,7 @@ impl Fundamentals {
             Current,
             Temperature,
             AmountOfSubstance,
-            LuminousIntensity,
+            Luminosity,
             Angle,
             Bit,
             Count,
@@ -210,7 +210,7 @@ pub mod base {
     pub const CURRENT: Dimension = Dimension::new_from_fundamental(Current);
     pub const TEMPERATURE: Dimension = Dimension::new_from_fundamental(Temperature);
     pub const AMOUNT_OF_SUBSTANCE: Dimension = Dimension::new_from_fundamental(AmountOfSubstance);
-    pub const LUMINOUS_INTENSITY: Dimension = Dimension::new_from_fundamental(LuminousIntensity);
+    pub const LUMINOSITY: Dimension = Dimension::new_from_fundamental(Luminosity);
     pub const ANGLE: Dimension = Dimension::new_from_fundamental(Angle);
     pub const BIT: Dimension = Dimension::new_from_fundamental(Bit);
     pub const COUNT: Dimension = Dimension::new_from_fundamental(Count);
@@ -274,10 +274,7 @@ mod tests {
             Fundamentals::AmountOfSubstance.to_string(),
             "amount of substance"
         );
-        assert_eq!(
-            Fundamentals::LuminousIntensity.to_string(),
-            "luminous intensity"
-        );
+        assert_eq!(Fundamentals::Luminosity.to_string(), "luminosity");
         assert_eq!(Fundamentals::Angle.to_string(), "angle");
         assert_eq!(Fundamentals::Bit.to_string(), "bit");
         assert_eq!(Fundamentals::Count.to_string(), "count");
@@ -291,7 +288,7 @@ mod tests {
         assert_eq!(Fundamentals::Current.to_index(), 3);
         assert_eq!(Fundamentals::Temperature.to_index(), 4);
         assert_eq!(Fundamentals::AmountOfSubstance.to_index(), 5);
-        assert_eq!(Fundamentals::LuminousIntensity.to_index(), 6);
+        assert_eq!(Fundamentals::Luminosity.to_index(), 6);
         assert_eq!(Fundamentals::Angle.to_index(), 7);
         assert_eq!(Fundamentals::Bit.to_index(), 8);
         assert_eq!(Fundamentals::Count.to_index(), 9);
@@ -310,7 +307,7 @@ mod tests {
         );
         assert_eq!(
             Fundamentals::from_index(6),
-            Ok(Fundamentals::LuminousIntensity)
+            Ok(Fundamentals::Luminosity)
         );
         assert_eq!(Fundamentals::from_index(7), Ok(Fundamentals::Angle));
         assert_eq!(Fundamentals::from_index(8), Ok(Fundamentals::Bit));
